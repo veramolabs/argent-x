@@ -3,6 +3,7 @@ import Head from "next/head"
 import { useState } from "react"
 
 import { TokenDapp } from "../components/TokenDapp"
+import { RegistryDapp } from "../components/RegistryDapp"
 import {
   connectWallet,
   isWalletConnected,
@@ -34,6 +35,8 @@ const Home: NextPage = () => {
               Wallet address: <code>{address}</code>
             </h3>
             <TokenDapp />
+            <hr />
+            <RegistryDapp />
           </>
         ) : (
           <>
