@@ -14,7 +14,7 @@ import styles from "../styles/Home.module.css"
 export const RegistryDapp: FC = () => {
   const [did, setDid] = useState("")
   const [keys, setKeys] = useState<Key[]>([])
-  const [type, setType] = useState("0")
+  const [type, setType] = useState("Secp256k1")
   const [publicKey, setPublicKey] = useState("")
   const [lastTransactionHash, setLastTransactionHash] = useState("")
   const [transactionStatus, setTransactionStatus] = useState<
@@ -123,13 +123,13 @@ export const RegistryDapp: FC = () => {
           <h2 className={styles.title}>Add key</h2>
 
           <label htmlFor="mint-amount">Key Type</label>
-          <input
-            type="text"
-            id="mint-amount"
-            name="fname"
-            value={type}
+          <select
             onChange={(e) => setType(e.target.value)}
-          />
+            value={type}
+          >
+            <option value="Secp256k1">Secp256k1</option>
+            <option value="Ed25519">Ed25519</option>
+          </select>
 
 
           <label htmlFor="mint-amount">Public Key</label>

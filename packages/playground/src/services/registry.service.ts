@@ -1,6 +1,6 @@
 import { getStarknet } from "@argent/get-starknet"
 import { utils } from "ethers"
-import { number, stark, Contract, Abi } from "starknet"
+import { number, stark, Contract, Abi, uint256, shortString } from "starknet"
 
 
 const registryAbi: Abi[] = [
@@ -14,10 +14,27 @@ const registryAbi: Abi[] = [
           {
               "name": "publicKey",
               "offset": 1,
-              "type": "felt"
+              "type": "Uint256"
           }
       ],
       "name": "Key",
+      "size": 3,
+      "type": "struct"
+  },
+  {
+      "members": [
+          {
+              "name": "low",
+              "offset": 0,
+              "type": "felt"
+          },
+          {
+              "name": "high",
+              "offset": 1,
+              "type": "felt"
+          }
+      ],
+      "name": "Uint256",
       "size": 2,
       "type": "struct"
   },
@@ -85,8 +102,9 @@ const registryAbi: Abi[] = [
 
 
 
+
 export const registryAddress =
-  "0x07b4f8fcfc647cbbeac352588faec88b69c1d659128a8ecf8b0d71cbbc3979a2"
+  "0x026baddbacb85e634d59e1f63fb984d6b308533141cefcfba00f91ae00d17512"
 
 const addKeySelector = stark.getSelectorFromName('add_key')
 const getKeySelector = stark.getSelectorFromName('get_key')
@@ -114,12 +132,16 @@ export const addKey = async (type: string, publicKey: string): Promise<any> => {
   if (starknet.isConnected === false)
     throw Error("starknet wallet not connected")
 
+  const keyuint256 = uint256.bnToUint256(number.toBN(publicKey))
+  console.log(type, shortString.encodeShortString(type))
+
   return await starknet.signer.invokeFunction(
     registryAddress, 
     addKeySelector,
     [
-      utils.parseUnits(type, 0).toString(),
-      utils.parseUnits(publicKey, 0).toString(),
+      shortString.encodeShortString(type),
+      keyuint256.low,
+      keyuint256.high,
     ],
   )
 }
@@ -174,10 +196,12 @@ export const getKeys = async (): Promise<Key[]> => {
       index: `${index}`
     }) as any
     if (res.type !== '0x0' && res.publicKey !== '0x0') {
+      const type = shortString.decodeShortString(res.type)
+      const publicKey = uint256.uint256ToBN(res.publicKey).toString()
 
       keys.push({ 
-        type: number.hexToDecimalString(res.type as string),
-        publicKey: number.hexToDecimalString(res.publicKey as string),
+        type,
+        publicKey,
       } as Key)
     }
   }
